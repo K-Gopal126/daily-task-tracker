@@ -1,36 +1,106 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Daily Work Tracker
+
+A modern, responsive daily work tracking application built with Next.js 15, TypeScript, and Tailwind CSS.
+
+## Features
+
+- **Task Management**: Add, edit, complete, and delete daily tasks
+- **Time Tracking**: Track time spent on each task with easy editing
+- **Categories**: Organize tasks by category (Work, Learning, Meetings, Admin, Break)
+- **Priority Levels**: Set task priorities (Low, Medium, High)
+- **Daily Statistics**: View completion rates and time distribution
+- **Date Navigation**: Navigate between different dates
+- **Local Storage**: All data persists locally in the browser
+- **Responsive Design**: Works perfectly on desktop and mobile devices
+
+## Project Structure
+
+```
+daily-work-tracker/
+├── app/
+│   ├── globals.css          # Global styles and Tailwind imports
+│   ├── layout.tsx           # Root layout component
+│   └── page.tsx            # Main application page
+├── components/
+│   ├── ui/                 # Reusable UI components
+│   │   ├── Button.tsx      # Button component with variants
+│   │   ├── Input.tsx       # Input component with validation
+│   │   └── Select.tsx      # Select dropdown component
+│   ├── DailyStats.tsx      # Statistics and analytics view
+│   ├── TaskForm.tsx        # Add/edit task modal form
+│   ├── TaskItem.tsx        # Individual task display component
+│   └── TaskList.tsx        # List of tasks with sorting
+├── lib/
+│   ├── types.ts            # TypeScript type definitions
+│   ├── utils.ts            # Utility functions and constants
+│   └── storage.ts          # Local storage management
+└── Configuration files...
+```
 
 ## Getting Started
 
-First, run the development server:
+1. **Install Dependencies**
+   ```bash
+   npm install
+   ```
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+2. **Run Development Server**
+   ```bash
+   npm run dev
+   ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+3. **Build for Production**
+   ```bash
+   npm run build
+   npm start
+   ```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Technologies Used
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **Next.js 15** - React framework with App Router
+- **TypeScript** - Type-safe JavaScript
+- **Tailwind CSS** - Utility-first CSS framework
+- **Lucide React** - Beautiful icon library
+- **Local Storage** - Client-side data persistence
 
-## Learn More
+## Key Components
 
-To learn more about Next.js, take a look at the following resources:
+### TaskItem
+Individual task display with inline time editing, completion toggle, and priority indicators.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### TaskForm
+Modal form for adding new tasks with validation and category/priority selection.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### DailyStats
+Comprehensive statistics view showing completion rates, time distribution, and category breakdowns.
 
-## Deploy on Vercel
+### Storage System
+Robust local storage management with error handling and data persistence.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Usage
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. **Add Tasks**: Click "Add Task" to create new tasks with categories and priorities
+2. **Track Time**: Click on time values to edit time spent on tasks
+3. **Mark Complete**: Click the circle icon to mark tasks as completed
+4. **View Stats**: Switch to the "Daily Stats" tab to see productivity insights
+5. **Navigate Dates**: Use the date picker to view tasks from different days
+
+## Customization
+
+The app is highly customizable through the configuration files in the `lib/` directory:
+
+- **Categories**: Modify `CATEGORY_LABELS` and `CATEGORY_COLORS` in `utils.ts`
+- **Priorities**: Adjust `PRIORITY_COLORS` for different priority styling
+- **Storage**: Extend the storage system in `storage.ts` for different persistence methods
+
+## Browser Compatibility
+
+- Chrome/Edge (latest)
+- Firefox (latest)
+- Safari (latest)
+- Mobile browsers (iOS Safari, Chrome Mobile)
+
+## License
+
+MIT License - feel free to use and modify for your needs!# daily-task-tracker
+
