@@ -1,14 +1,14 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { Plus, Minus, Save, RotateCcw, TrendingUp, TrendingDown, Home } from 'lucide-react'
+import { Save, RotateCcw, Home, Calendar, ChevronLeft, ChevronRight } from 'lucide-react'
 import Link from 'next/link'
 
-interface StrengthWeaknessEntry {
+interface DiaryEntry {
   id: string
-  strength: string
-  weakness: string
   date: string
+  strengthsText: string
+  weaknessesText: string
 }
 
 const Button = ({ 
@@ -27,19 +27,19 @@ const Button = ({
   className?: string
   disabled?: boolean
 }) => {
-  const baseClasses = 'font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2'
+  const baseClasses = 'font-medium rounded transition-colors duration-200 focus:outline-none'
   
   const variantClasses = {
-    primary: 'bg-blue-600 hover:bg-blue-700 text-white focus:ring-blue-500',
-    secondary: 'bg-gray-200 hover:bg-gray-300 text-gray-800 focus:ring-gray-500',
-    danger: 'bg-red-600 hover:bg-red-700 text-white focus:ring-red-500',
-    ghost: 'bg-transparent hover:bg-gray-100 text-gray-700 focus:ring-gray-500'
+    primary: 'bg-amber-700 hover:bg-amber-800 text-white',
+    secondary: 'bg-gray-200 hover:bg-gray-300 text-gray-700',
+    danger: 'bg-red-600 hover:bg-red-700 text-white',
+    ghost: 'bg-transparent hover:bg-gray-100 text-gray-600'
   }
   
   const sizeClasses = {
     sm: 'px-3 py-1.5 text-sm',
-    md: 'px-4 py-2',
-    lg: 'px-6 py-3 text-lg'
+    md: 'px-4 py-2 text-sm',
+    lg: 'px-5 py-2.5'
   }
   
   return (
@@ -56,249 +56,249 @@ const Button = ({
   )
 }
 
-export default function StrengthsWeaknessesPage() {
-  const [entries, setEntries] = useState<StrengthWeaknessEntry[]>([
-    { id: '1', strength: '', weakness: '', date: new Date().toISOString().split('T')[0] }
-  ])
+export default function PaperDiaryPage() {
+  const [entries, setEntries] = useState<DiaryEntry[]>([])
+  const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split('T')[0])
   const [lastSaved, setLastSaved] = useState<Date | null>(null)
 
-  // Load data from localStorage
   useEffect(() => {
-    const saved = localStorage?.getItem('strengthsWeaknesses')
-    if (saved) {
-      try {
-        const parsedData = JSON.parse(saved)
-        setEntries(parsedData.entries || [{ id: '1', strength: '', weakness: '', date: new Date().toISOString().split('T')[0] }])
-        setLastSaved(parsedData.lastSaved ? new Date(parsedData.lastSaved) : null)
-      } catch (error) {
-        console.error('Error loading data:', error)
-      }
+    if (entries.length === 0) {
+      setEntries([{
+        id: Date.now().toString(),
+        date: selectedDate,
+        strengthsText: '',
+        weaknessesText: ''
+      }])
     }
   }, [])
 
-  // Auto-save functionality
-  const saveData = () => {
-    const dataToSave = {
-      entries,
-      lastSaved: new Date().toISOString()
-    }
-    localStorage?.setItem('strengthsWeaknesses', JSON.stringify(dataToSave))
-    setLastSaved(new Date())
-  }
-
-  const addRow = () => {
-    const newEntry: StrengthWeaknessEntry = {
+  const getCurrentEntry = (): DiaryEntry => {
+    const entry = entries.find(e => e.date === selectedDate)
+    if (entry) return entry
+    
+    const newEntry: DiaryEntry = {
       id: Date.now().toString(),
-      strength: '',
-      weakness: '',
-      date: new Date().toISOString().split('T')[0]
+      date: selectedDate,
+      strengthsText: '',
+      weaknessesText: ''
     }
     setEntries(prev => [...prev, newEntry])
+    return newEntry
   }
 
-  const removeRow = (id: string) => {
-    if (entries.length > 1) {
-      setEntries(prev => prev.filter(entry => entry.id !== id))
-    }
-  }
+  const currentEntry = getCurrentEntry()
 
-  const updateEntry = (id: string, field: 'strength' | 'weakness', value: string) => {
+  const updateStrengths = (value: string) => {
     setEntries(prev => prev.map(entry => 
-      entry.id === id ? { ...entry, [field]: value } : entry
+      entry.date === selectedDate 
+        ? { ...entry, strengthsText: value }
+        : entry
     ))
   }
 
+  const updateWeaknesses = (value: string) => {
+    setEntries(prev => prev.map(entry => 
+      entry.date === selectedDate 
+        ? { ...entry, weaknessesText: value }
+        : entry
+    ))
+  }
+
+  const saveData = () => {
+    setLastSaved(new Date())
+    alert('Diary saved successfully!')
+  }
+
   const clearAll = () => {
-    if (confirm('Are you sure you want to clear all entries?')) {
-      setEntries([{ id: Date.now().toString(), strength: '', weakness: '', date: new Date().toISOString().split('T')[0] }])
+    if (confirm('Are you sure you want to clear all diary entries?')) {
+      setEntries([{
+        id: Date.now().toString(),
+        date: new Date().toISOString().split('T')[0],
+        strengthsText: '',
+        weaknessesText: ''
+      }])
+      setSelectedDate(new Date().toISOString().split('T')[0])
     }
   }
 
-  const getStats = () => {
-    const totalStrengths = entries.filter(entry => entry.strength.trim()).length
-    const totalWeaknesses = entries.filter(entry => entry.weakness.trim()).length
-    const completedEntries = entries.filter(entry => entry.strength.trim() && entry.weakness.trim()).length
-    return { totalStrengths, totalWeaknesses, completedEntries, totalEntries: entries.length }
+  const changeDate = (days: number) => {
+    const currentDate = new Date(selectedDate + 'T00:00:00')
+    currentDate.setDate(currentDate.getDate() + days)
+    setSelectedDate(currentDate.toISOString().split('T')[0])
   }
 
-  const stats = getStats()
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString + 'T00:00:00')
+    return date.toLocaleDateString('en-IN', { 
+      weekday: 'long', 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    })
+  }
+
+  const getDayOfWeek = (dateString: string) => {
+    const date = new Date(dateString + 'T00:00:00')
+    return date.toLocaleDateString('en-US', { weekday: 'long' })
+  }
+
+  const getMonthYear = (dateString: string) => {
+    const date = new Date(dateString + 'T00:00:00')
+    return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+  }
+
+  const getDay = (dateString: string) => {
+    const date = new Date(dateString + 'T00:00:00')
+    return date.getDate()
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
-      <div className="container mx-auto px-4 py-8 max-w-6xl">
-        {/* Header */}
-        <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-800 flex items-center gap-3">
-                <TrendingUp className="text-green-600" />
-                Work Strengths & Weaknesses
-              </h1>
-              <p className="text-gray-600 mt-2">
-                Track what you accomplished vs what you couldn't achieve
-              </p>
-            </div>
-            <Link href="/">
-            <Button variant="ghost" className="flex items-center gap-2">
+    <div className="min-h-screen bg-amber-50 py-8">
+      <div className="container mx-auto px-4 max-w-4xl">
+        {/* Top Navigation */}
+        <div className="flex items-center justify-between mb-6">
+          <Link href="/">
+            <Button variant="ghost" size="sm" className="flex items-center gap-2">
               <Home className="w-4 h-4" />
-              Back to Tasks
+              Home
             </Button>
-            </Link>
-          </div>
-
-          {/* Stats */}
-          <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-4">
-            <div className="bg-green-50 rounded-lg p-4 border border-green-200">
-              <div className="flex items-center gap-2">
-                <TrendingUp className="w-5 h-5 text-green-600" />
-                <div>
-                  <p className="text-green-800 font-semibold">{stats.totalStrengths}</p>
-                  <p className="text-green-600 text-sm">Strengths Listed</p>
-                </div>
-              </div>
-            </div>
-            
-            <div className="bg-red-50 rounded-lg p-4 border border-red-200">
-              <div className="flex items-center gap-2">
-                <TrendingDown className="w-5 h-5 text-red-600" />
-                <div>
-                  <p className="text-red-800 font-semibold">{stats.totalWeaknesses}</p>
-                  <p className="text-red-600 text-sm">Weaknesses Listed</p>
-                </div>
-              </div>
-            </div>
-            
-            <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
-              <div className="flex items-center gap-2">
-                <Save className="w-5 h-5 text-blue-600" />
-                <div>
-                  <p className="text-blue-800 font-semibold">{stats.completedEntries}</p>
-                  <p className="text-blue-600 text-sm">Complete Entries</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-              <div className="flex items-center gap-2">
-                <Plus className="w-5 h-5 text-gray-600" />
-                <div>
-                  <p className="text-gray-800 font-semibold">{entries.length}</p>
-                  <p className="text-gray-600 text-sm">Total Rows</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex flex-wrap gap-3">
-            <Button onClick={addRow} className="flex items-center gap-2">
-              <Plus className="w-4 h-4" />
-              Add Row
-            </Button>
-            <Button onClick={saveData} variant="secondary" className="flex items-center gap-2">
+          </Link>
+          
+          <div className="flex gap-2">
+            <Button onClick={saveData} variant="primary" size="sm" className="flex items-center gap-2">
               <Save className="w-4 h-4" />
-              Save Progress
+              Save
             </Button>
-            <Button onClick={clearAll} variant="primary" className="flex items-center gap-2">
+            <Button onClick={clearAll} variant="secondary" size="sm" className="flex items-center gap-2">
               <RotateCcw className="w-4 h-4" />
               Clear All
             </Button>
           </div>
-
-          {lastSaved && (
-            <p className="text-sm text-gray-500 mt-2">
-              Last saved: {lastSaved.toLocaleString()}
-            </p>
-          )}
         </div>
 
-        {/* Table */}
-        <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gradient-to-r from-green-50 to-red-50">
-                <tr>
-                  <th className="px-6 py-4 text-left">
-                    <div className="flex items-center gap-2 text-green-700 font-semibold">
-                      <TrendingUp className="w-5 h-5" />
-                      What I Accomplished (Strengths)
-                    </div>
-                  </th>
-                  <th className="px-6 py-4 text-left">
-                    <div className="flex items-center gap-2 text-red-700 font-semibold">
-                      <TrendingDown className="w-5 h-5" />
-                      What I Couldn't Achieve (Weaknesses)
-                    </div>
-                  </th>
-                  <th className="px-6 py-4 text-center w-20">
-                    <span className="text-gray-600 font-semibold">Actions</span>
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {entries.map((entry, index) => (
-                  <tr key={entry.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                    <td className="px-6 py-4">
-                      <textarea
-                        value={entry.strength}
-                        onChange={(e) => updateEntry(entry.id, 'strength', e.target.value)}
-                        placeholder="List what you accomplished today..."
-                        rows={3}
-                        className="w-full p-3 border border-green-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent resize-none bg-green-50/30"
-                      />
-                    </td>
-                    <td className="px-6 py-4">
-                      <textarea
-                        value={entry.weakness}
-                        onChange={(e) => updateEntry(entry.id, 'weakness', e.target.value)}
-                        placeholder="List what you couldn't achieve..."
-                        rows={3}
-                        className="w-full p-3 border border-red-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent resize-none bg-red-50/30"
-                      />
-                    </td>
-                    <td className="px-6 py-4 text-center">
-                      <Button
-                        onClick={() => removeRow(entry.id)}
-                        variant="ghost"
-                        size="sm"
-                        disabled={entries.length === 1}
-                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                      >
-                        <Minus className="w-4 h-4" />
-                      </Button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+        {/* Diary Book */}
+        <div className="bg-amber-100 rounded-lg shadow-2xl p-8 border-4 border-amber-900" style={{
+          backgroundImage: `repeating-linear-gradient(0deg, transparent, transparent 31px, #d4a574 31px, #d4a574 32px)`,
+        }}>
+          {/* Date Navigation */}
+          <div className="flex items-center justify-between mb-6 pb-4 border-b-2 border-amber-800">
+            <button 
+              onClick={() => changeDate(-1)}
+              className="p-2 hover:bg-amber-200 rounded transition-colors"
+            >
+              <ChevronLeft className="w-5 h-5 text-amber-900" />
+            </button>
+            
+            <div className="text-center">
+              <div className="text-amber-900 font-bold text-3xl font-serif">
+                {getDay(selectedDate)}
+              </div>
+              <div className="text-amber-800 font-semibold text-lg font-serif">
+                {getDayOfWeek(selectedDate)}
+              </div>
+              <div className="text-amber-700 text-sm font-serif">
+                {getMonthYear(selectedDate)}
+              </div>
+            </div>
+            
+            <button 
+              onClick={() => changeDate(1)}
+              className="p-2 hover:bg-amber-200 rounded transition-colors"
+            >
+              <ChevronRight className="w-5 h-5 text-amber-900" />
+            </button>
+          </div>
+
+          {/* Diary Pages */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* Left Page - Strengths */}
+            <div className="relative">
+              <div className="bg-yellow-50 rounded shadow-lg p-6 min-h-[500px]" style={{
+                backgroundImage: `repeating-linear-gradient(transparent, transparent 31px, #e5d5b7 31px, #e5d5b7 32px)`,
+                lineHeight: '32px'
+              }}>
+                <div className="mb-4 pb-2 border-b border-green-600">
+                  <h2 className="text-green-700 font-bold text-xl font-serif">
+                    ✓ What I Accomplished
+                  </h2>
+                </div>
+                <textarea
+                  value={currentEntry.strengthsText}
+                  onChange={(e) => updateStrengths(e.target.value)}
+                  placeholder="Write your accomplishments here..."
+                  className="w-full h-[400px] bg-transparent border-none focus:outline-none resize-none font-handwriting text-gray-800 text-base"
+                  style={{
+                    lineHeight: '32px',
+                    fontFamily: "'Kalam', cursive"
+                  }}
+                />
+              </div>
+              {/* Page curl effect */}
+              <div className="absolute bottom-0 right-0 w-16 h-16 bg-amber-100 transform rotate-45 translate-x-8 translate-y-8 shadow-xl"></div>
+            </div>
+
+            {/* Right Page - Weaknesses */}
+            <div className="relative">
+              <div className="bg-yellow-50 rounded shadow-lg p-6 min-h-[500px]" style={{
+                backgroundImage: `repeating-linear-gradient(transparent, transparent 31px, #e5d5b7 31px, #e5d5b7 32px)`,
+                lineHeight: '32px'
+              }}>
+                <div className="mb-4 pb-2 border-b border-red-600">
+                  <h2 className="text-red-700 font-bold text-xl font-serif">
+                    ✗ What I Couldn't Achieve
+                  </h2>
+                </div>
+                <textarea
+                  value={currentEntry.weaknessesText}
+                  onChange={(e) => updateWeaknesses(e.target.value)}
+                  placeholder="Write what you couldn't achieve here..."
+                  className="w-full h-[400px] bg-transparent border-none focus:outline-none resize-none font-handwriting text-gray-800 text-base"
+                  style={{
+                    lineHeight: '32px',
+                    fontFamily: "'Kalam', cursive"
+                  }}
+                />
+              </div>
+              {/* Page curl effect */}
+              <div className="absolute bottom-0 right-0 w-16 h-16 bg-amber-100 transform rotate-45 translate-x-8 translate-y-8 shadow-xl"></div>
+            </div>
+          </div>
+
+          {/* Diary Bottom */}
+          <div className="mt-6 pt-4 border-t-2 border-amber-800 flex justify-between items-center">
+            <div className="flex items-center gap-2">
+              <Calendar className="w-4 h-4 text-amber-800" />
+              <input
+                type="date"
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
+                className="px-3 py-1 bg-yellow-50 border border-amber-600 rounded text-sm font-serif focus:outline-none focus:ring-2 focus:ring-amber-600"
+              />
+            </div>
+            
+            {lastSaved && (
+              <p className="text-xs text-amber-800 font-serif">
+                Last saved: {lastSaved.toLocaleTimeString()}
+              </p>
+            )}
           </div>
         </div>
 
         {/* Tips */}
-        <div className="mt-6 bg-blue-50 rounded-xl p-6 border border-blue-200">
-          <h3 className="text-lg font-semibold text-blue-800 mb-3">💡 Tips for Effective Self-Reflection</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-blue-700">
-            <div>
-              <h4 className="font-medium mb-2">For Strengths:</h4>
-              <ul className="space-y-1 list-disc list-inside">
-                <li>Completed tasks and projects</li>
-                <li>Skills you used effectively</li>
-                <li>Problems you solved</li>
-                <li>Positive feedback received</li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-medium mb-2">For Weaknesses:</h4>
-              <ul className="space-y-1 list-disc list-inside">
-                <li>Tasks left incomplete</li>
-                <li>Skills you need to improve</li>
-                <li>Challenges you faced</li>
-                <li>Areas for future development</li>
-              </ul>
-            </div>
-          </div>
+        <div className="mt-6 bg-white rounded-lg shadow p-5 border border-amber-200">
+          <p className="text-sm text-gray-700 font-serif">
+            <strong>💡 Tip:</strong> Write naturally as you would in a real diary. Use the lined paper to organize your thoughts. Navigate between dates using the arrows or date picker.
+          </p>
         </div>
       </div>
+
+      {/* Google Font for handwriting effect */}
+      <style jsx global>{`
+        @import url('https://fonts.googleapis.com/css2?family=Kalam:wght@300;400;700&display=swap');
+        .font-handwriting {
+          font-family: 'Kalam', cursive;
+        }
+      `}</style>
     </div>
   )
 }
