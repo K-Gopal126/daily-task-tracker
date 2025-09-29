@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { Plus, Minus, Save, RotateCcw, TrendingUp, TrendingDown, Home } from 'lucide-react'
+import Link from 'next/link'
 
 interface StrengthWeaknessEntry {
   id: string
@@ -137,10 +138,12 @@ export default function StrengthsWeaknessesPage() {
                 Track what you accomplished vs what you couldn't achieve
               </p>
             </div>
+            <Link href="/">
             <Button variant="ghost" className="flex items-center gap-2">
               <Home className="w-4 h-4" />
               Back to Tasks
             </Button>
+            </Link>
           </div>
 
           {/* Stats */}
