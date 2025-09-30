@@ -13,6 +13,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="hydrated">
+      <meta name="google-site-verification" content="5boXUk1QzpXwrGhC1-tFzrbw9u4NstAuIsBXBHN6StM" />
       <body className="antialiased">
         {children}
       </body>
