@@ -84,6 +84,11 @@ Robust local storage management with error handling and data persistence.
 3. **Mark Complete**: Click the circle icon to mark tasks as completed
 4. **View Stats**: Switch to the "Daily Stats" tab to see productivity insights
 5. **Navigate Dates**: Use the date picker to view tasks from different days
+6. **Note Your Work**: Check Your Real Strength & Weakness. And Focus How You Can Achieve It.
+
+## See Image
+
+![alt text](https://daily-task-tracker-beta.vercel.app/image.png)
 
 ## Customization
 
